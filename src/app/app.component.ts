@@ -13,4 +13,12 @@ export class AppComponent {
     {id:3, title: 'Note 3', description: 'Description for note 3'},
     {id:4, title: 'Note 4', description: 'Description for note 4'},
   ];
+  note = {title:null, body:null};
+  show_form = false;
+  addNote(){
+    this.show_form = true;
+  }
+  cancel(){
+    this.show_form = false;
+  }
 }
