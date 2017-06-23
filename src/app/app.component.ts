@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
 
 @Component({
   selector: 'app-root',
@@ -7,17 +8,23 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'app';
-  my_notes = [
-    {id:1, title: 'Note 1', description: 'Description for note 1'},
-    {id:2, title: 'Note 2', description: 'Description for note 2'},
-    {id:3, title: 'Note 3', description: 'Description for note 3'},
-    {id:4, title: 'Note 4', description: 'Description for note 4'},
-  ];
+  my_notes: any;
+
+  constructor(public afDB: AngularFireDatabase) {
+    this.getNotas().subscribe(notas => {
+      this.my_notes = notas;
+    });
+  }
+  getNotas(){
+    return this.afDB.list('/notas');
+  }
   note = {id:null, title:null, description:null};
   show_form = false;
   editing = false;
   addNote(){
+    this.editing = false;
     this.show_form = true;
+    this.note = {id:null, title:null, description:null};
   }
   viewNote(note){
     this.editing = true;
@@ -27,7 +34,7 @@ export class AppComponent {
   cancel(){
     this.show_form = false;
   }
-  delete(){
+  /*delete(){
     var me = this;
     this.my_notes.forEach(function(el, i){
       if(el == me.note){
@@ -36,21 +43,11 @@ export class AppComponent {
     });
     this.show_form = false;
     this.note = {id:null, title:null, description:null};
-  }
+  }*/
   createNote(){
-    if(this.editing){
-      var me = this;
-      this.my_notes.forEach(function(el, i){
-          if(el.id === me.note.id){
-            me.my_notes[i] = me.note;
-          }
-      });
-      me.show_form = false;
-    }else{
-      this.note.id = Date.now();
-      this.my_notes.push(this.note);
-      this.show_form = false;
-      this.note = {id:null, title:null, description:null};
-    }
+    this.note.id = Date.now();
+    this.afDB.database.ref('notas/' + this.note.id).set(this.note);
+    this.show_form = false;
+    this.note = {id:null, title:null, description:null};
   }
 }
