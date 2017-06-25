@@ -11,12 +11,20 @@ export class AppComponent {
   my_notes: any;
 
   constructor(public afDB: AngularFireDatabase) {
-    this.getNotas().subscribe(notas => {
-      this.my_notes = notas;
-    });
+      this.getNotes()
+          .subscribe(
+              notas => {
+                this.my_notes = notas;
+              }
+          );
   }
-  getNotas(){
+  getNotes(){
     return this.afDB.list('/notas');
+  }
+  removeNote(){
+    this.afDB.database.ref('notas/' + this.note.id).remove();
+    this.show_form = false;
+    this.note = {id:null, title:null, description:null};
   }
   note = {id:null, title:null, description:null};
   show_form = false;
@@ -45,8 +53,12 @@ export class AppComponent {
     this.note = {id:null, title:null, description:null};
   }*/
   createNote(){
-    this.note.id = Date.now();
-    this.afDB.database.ref('notas/' + this.note.id).set(this.note);
+    if(this.editing){
+      this.afDB.database.ref('notas/' + this.note.id).set(this.note);
+    }else{
+      this.note.id = Date.now();
+      this.afDB.database.ref('notas/' + this.note.id).set(this.note);
+    }
     this.show_form = false;
     this.note = {id:null, title:null, description:null};
   }
